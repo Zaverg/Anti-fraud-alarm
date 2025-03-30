@@ -1,12 +1,12 @@
 using System;
-using System.Collections;
 using UnityEngine;
 
 public class AlarmTrigger : MonoBehaviour
 {
     [SerializeField] private float _time;
 
-    public event Func<bool, bool> Working;
+    public event Action Working;
+    public event Action<Thief> Entered;
     private bool _isAlarmWork = false;
     private WaitForSeconds _wait;
 
@@ -19,21 +19,8 @@ public class AlarmTrigger : MonoBehaviour
     {
         if (other.gameObject.TryGetComponent(out Thief thief))
         {
-            _isAlarmWork = !_isAlarmWork;
-            StartCoroutine(Wait(thief));
+            Entered?.Invoke(thief);
+            Working?.Invoke();
         }
-    }
-
-    private IEnumerator Wait(Thief thief)
-    {
-        bool isWork = true;
-
-        while (isWork)
-        {
-            yield return new WaitUntil(() => (bool)Working?.Invoke(_isAlarmWork));
-            thief.UpdateState();
-            isWork = false;
-        }
-        
     }
 }

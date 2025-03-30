@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\AlarmTrigger.cs" />
     <Compile Include="Assets\Scripts\Alarm.cs" />
+    <Compile Include="Assets\Scripts\StateTheifs.cs" />
     <Compile Include="Assets\Scripts\Thief.cs" />
   </ItemGroup>
   <ItemGroup>

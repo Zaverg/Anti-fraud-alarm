@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Alarm : MonoBehaviour
@@ -9,11 +10,15 @@ public class Alarm : MonoBehaviour
     [SerializeField] private float _minVolume;
     [SerializeField] private float _step;
 
+    private bool _isIncreasing = true;
+    private bool _isWork;
+
+    public bool IsIncreases => _isIncreasing;
+
     private void OnEnable()
     {
         _audioSource.volume = _minVolume;
         _alarmTrigger.Working += WorkAlarm;
-      
     }
 
     private void OnDisable()
@@ -21,21 +26,37 @@ public class Alarm : MonoBehaviour
         _alarmTrigger.Working -= WorkAlarm;
     }
 
-    private bool WorkAlarm(bool isIncreases)
+    private void WorkAlarm()
     {
-        float volume;
+        if (_isWork == false)
+            StartCoroutine(StartAlarm());
+    }
 
-        if (isIncreases)
-            volume = _maxVolume;
-        else
-            volume = _minVolume;
+    private bool IsVolumeReached(float volume)
+    {
+        float error = 0.001f;
+
+        if (Mathf.Abs(_audioSource.volume - volume) < error)
+            return true;
 
         _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, volume, _step);
 
-        if (_audioSource.volume == _maxVolume || _audioSource.volume == _minVolume)
-            return true;
-
         return false;
+    }
+
+    private IEnumerator StartAlarm()
+    {
+        _isWork = true;
+
+        float volume = _isIncreasing ? _maxVolume : _minVolume;
+
+        while (_isWork)
+        {
+            yield return new WaitUntil(() => IsVolumeReached(volume));
+
+            _isIncreasing = !_isIncreasing;
+            _isWork = false;
+        }
     }
 }
 
